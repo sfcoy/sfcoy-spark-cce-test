@@ -49,7 +49,7 @@ public class SparkCCETest {
               .toJavaRDD()
               .mapToPair(nut -> new Tuple2<>(nut.getMachineType(), nut))
               .repartitionAndSortWithinPartitions(new HashPartitioner(workerCount))
-              .combineByKey(SparkCCETest::createListAndCombine, SparkCCETest::mergeValues, SparkCCETest::mergeCombiners)
+              .combineByKey(SparkCCETest::createListAndCombine, SparkCCETest::mergeValues, SparkCCETest::mergeNutCombiners)
               .persist(StorageLevel.MEMORY_AND_DISK());
 
             final JavaPairRDD<String, List<Bolt>> boltsByMachine = sparkSession
@@ -62,7 +62,7 @@ public class SparkCCETest {
               .toJavaRDD()
               .mapToPair(bolt -> new Tuple2<>(bolt.getMachineType(), bolt))
               .repartitionAndSortWithinPartitions(new HashPartitioner(workerCount))
-              .combineByKey(SparkCCETest::createListAndCombine, SparkCCETest::mergeValues, SparkCCETest::mergeCombiners)
+              .combineByKey(SparkCCETest::createListAndCombine, SparkCCETest::mergeValues, SparkCCETest::mergeBoltCombiners)
               .persist(StorageLevel.MEMORY_AND_DISK());
 
             machineRecords
@@ -87,18 +87,34 @@ public class SparkCCETest {
         return machine.getId().substring(0, 5);
     }
 
-    static <T> List<T> createListAndCombine(T v) {
-        List<T> c = new ArrayList<>();
+    static List<Nut> createListAndCombine(Nut v) {
+        List<Nut> c = new ArrayList<>();
         c.add(v);
         return c;
     }
 
-    static <T> List<T> mergeValues(List<T> c, T v) {
+    static List<Nut> mergeValues(List<Nut> c, Nut v) {
         c.add(v);
         return c;
     }
 
-    static <T> List<T> mergeCombiners(List<T> c1, List<T> c2) {
+    static List<Nut> mergeNutCombiners(List<Nut> c1, List<Nut> c2) {
+        c1.addAll(c2);
+        return c1;
+    }
+
+    static List<Bolt> createListAndCombine(Bolt v) {
+        List<Bolt> c = new ArrayList<>();
+        c.add(v);
+        return c;
+    }
+
+    static List<Bolt> mergeValues(List<Bolt> c, Bolt v) {
+        c.add(v);
+        return c;
+    }
+
+    static List<Bolt> mergeBoltCombiners(List<Bolt> c1, List<Bolt> c2) {
         c1.addAll(c2);
         return c1;
     }
