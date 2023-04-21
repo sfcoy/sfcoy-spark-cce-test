@@ -18,7 +18,7 @@
         <!-- these versions are aligned with those that ship with Apache Spark 3.x.x -->
         <slf4j.version>1.7.16</slf4j.version>
         <spark-scala.version>2.12</spark-scala.version>
-        <spark-core.version>3.0.0-preview2</spark-core.version>
+        <spark-core.version>3.4.0</spark-core.version>
 
     </properties>
 
